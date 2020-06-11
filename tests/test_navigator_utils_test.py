@@ -1,6 +1,6 @@
 import unittest
 
-from test_navigator.test_navigator_utils import get_hello_word, get_world_word, get_phrase
+from users.users_utils import get_hello_word, get_world_word, get_phrase
 
 
 class TestAppPrint(unittest.TestCase):
