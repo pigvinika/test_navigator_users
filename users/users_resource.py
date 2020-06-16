@@ -2,7 +2,7 @@ import json
 
 from users.users_model import UserData
 from flask import request, make_response, jsonify
-from flask_api.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_200_OK
+from flask_api.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from flask_restful import fields, marshal, Resource
 
 user_fields = {'id': fields.Integer,
@@ -14,13 +14,22 @@ user_list_fields = {'count': fields.Integer,
 
 class UserAddResource(Resource):
     @staticmethod
-    def post(user_name):
+    def post():
         try:
-            json.loads(request.data.decode("utf-8"))['name']
+            user_name = json.loads(request.data.decode("utf-8"))['name']
         except:
-            return make_response(jsonify({'error': 'Invalid donation data'}), HTTP_400_BAD_REQUEST)
+            return make_response(jsonify({'error': 'Invalid user data'}), HTTP_400_BAD_REQUEST)
 
-        UserData.create(user_name)
+        user = UserData.create(user_name)
+
+        if not user:
+            return make_response(jsonify({'error': 'The user not created'}), HTTP_404_NOT_FOUND)
+        else:
+            try:
+                content = make_response(marshal(user, user_fields), HTTP_200_OK)
+            except:
+                return make_response(jsonify({'error': 'Corrupted database data'}), HTTP_500_INTERNAL_SERVER_ERROR)
+            return make_response(content, HTTP_200_OK)
 
 
 class UserListResource(Resource):
